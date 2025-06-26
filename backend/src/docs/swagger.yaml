@@ -1,0 +1,11 @@
+openapi: 3.0.0
+info:
+  title: P8IO API
+  version: 1.0.0
+paths:
+  /ping:
+    get:
+      summary: Ping check
+      responses:
+        '200':
+          description: Pong response
