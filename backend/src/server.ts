@@ -8,7 +8,7 @@ app.listen(PORT, async () => {
   try {
     await testConnection()
     /* eslint-disable no-console */
-    console.log(`Express Server running on: http://localhost:${PORT}`)
+    console.log(`Express Server started successfully on port ${PORT}.\n--- Environment: ${env.NODE_ENV.toUpperCase()}.`)
   } catch (error) {
     console.error('*** Error starting server:\n', error)
     /* eslint-enable no-console */

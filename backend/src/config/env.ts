@@ -4,6 +4,9 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 const envSchema = z.object({
+  NODE_ENV: z
+    .enum(['development', 'production', 'test'])
+    .default('development'),
   DB_USER: z.string().nonempty({ message: 'DB_USER is required' }),
   DB_HOST: z.string().nonempty({ message: 'DB_HOST is required' }),
   DB_NAME: z.string().nonempty({ message: 'DB_NAME is required' }),
