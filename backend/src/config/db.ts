@@ -8,7 +8,7 @@ export const psqlPool = new Pool({
   database: env.DB_NAME,
   password: env.DB_PASSWORD,
   port: env.DB_PORT,
-  ssl: env.NODE_ENV === 'production'
+  ssl: true
 })
 
 export async function testConnection() {
