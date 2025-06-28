@@ -4,6 +4,8 @@ import dotenv from 'dotenv'
 import express from 'express'
 import swaggerUi from 'swagger-ui-express'
 
+import * as api from "./api/index.js";
+
 dotenv.config()
 const app = express()
 
@@ -18,6 +20,8 @@ app.get('/ping', (_, res) => {
     timestamp: new Date().toISOString()
   })
 })
+
+app.use('/api/users', api.userRouter)
 
 // Swagger Docs
 const swaggerDocument = YAML.load('./src/docs/swagger.yaml')
