@@ -1,12 +1,10 @@
 import app from './app.js'
 import { env } from './config/env.js'
-import { testConnection } from './config/db.js'
 
 const PORT = env.PORT
 
 app.listen(PORT, async () => {
   try {
-    await testConnection()
     /* eslint-disable no-console */
     console.log(`Express Server started successfully on port ${PORT}.\n--- Environment: ${env.NODE_ENV.toUpperCase()}.`)
   } catch (error) {
