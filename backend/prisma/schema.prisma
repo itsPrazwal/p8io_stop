@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserType {
+  USER
+  PROVIDER
+}
+
+enum WorkNature {
+  ONSITE
+  ONLINE
+}
+
+enum Currency {
+  USD
+  AUD
+  SGD
+  INR
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  type         UserType
+  isCompany    Boolean
+  firstName    String?    // Individual
+  lastName     String?    // Individual
+  companyName  String?    // Company
+  taxNumber    String?    // Company, 10-char format validated at API level
+  email        String     @unique
+  phone        String
+  address      Address?   @relation(fields: [addressId], references: [id])
+  addressId    Int?
+  createdAt    DateTime   @default(now())
+
+  // Relations
+  skills       Skill[]
+  tasks        Task[]     @relation("UserTasks")
+  offers       Offer[]    @relation("ProviderOffers")
+  progressLogs TaskProgress[]
+}
+
+model Address {
+  id           Int      @id @default(autoincrement())
+  streetNumber String
+  streetName   String
+  city         String
+  state        String
+  postcode     String
+
+  users        User[]
+}
+
+model Skill {
+  id          Int       @id @default(autoincrement())
+  provider    User      @relation(fields: [providerId], references: [id])
+  providerId  Int
+  category    String
+  experience  Int
+  nature      WorkNature
+  hourlyRate  Float
+  createdAt   DateTime  @default(now())
+}
+
+model Task {
+  id             Int       @id @default(autoincrement())
+  user           User      @relation("UserTasks", fields: [userId], references: [id])
+  userId         Int
+  category       String
+  name           String
+  description    String
+  expectedStart  DateTime
+  hours          Int
+  hourlyRate     Float
+  currency       Currency
+  isCompleted    Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+
+  offers         Offer[]
+  progressLogs   TaskProgress[]
+}
+
+model Offer {
+  id          Int         @id @default(autoincrement())
+  provider    User        @relation("ProviderOffers", fields: [providerId], references: [id])
+  providerId  Int
+  task        Task        @relation(fields: [taskId], references: [id])
+  taskId      Int
+  status      OfferStatus @default(PENDING)
+  createdAt   DateTime    @default(now())
+}
+
+model TaskProgress {
+  id          Int       @id @default(autoincrement())
+  task        Task      @relation(fields: [taskId], references: [id])
+  taskId      Int
+  provider    User      @relation(fields: [providerId], references: [id])
+  providerId  Int
+  description String
+  createdAt   DateTime  @default(now())
+}
