@@ -178,6 +178,222 @@ paths:
         '404':
           description: User not found
 
+  /api/skills:
+    post:
+      summary: Create a skill
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SkillInput'
+      responses:
+        '201':
+          description: Skill created
+
+  /api/skills/{id}:
+    get:
+      summary: Get skill by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Skill found
+
+    put:
+      summary: Update skill by ID
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SkillInput'
+      responses:
+        '200':
+          description: Skill updated
+
+    delete:
+      summary: Delete skill by ID
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Skill deleted
+
+  /api/skills/provider/{providerId}:
+    get:
+      summary: Get skills by provider
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: providerId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Skills retrieved
+
+  /api/tasks:
+    post:
+      summary: Create a task
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskInput'
+      responses:
+        '201':
+          description: Task created
+
+  /api/tasks/{id}:
+    get:
+      summary: Get task by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Task found
+
+    put:
+      summary: Update task by ID
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskInput'
+      responses:
+        '200':
+          description: Task updated
+
+    delete:
+      summary: Delete task by ID
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Task deleted
+
+  /api/tasks/user/{userId}:
+    get:
+      summary: Get tasks by user ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Tasks retrieved
+
+  /api/offers:
+    post:
+      summary: Create an offer
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfferInput'
+      responses:
+        '201':
+          description: Offer created
+
+  /api/offers/{id}:
+    get:
+      summary: Get offer by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Offer found
+
+    put:
+      summary: Update offer by ID
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfferInput'
+      responses:
+        '200':
+          description: Offer updated
+
+    delete:
+      summary: Delete offer by ID
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Offer deleted
+
+  /api/offers/task/{taskId}:
+    get:
+      summary: Get offers for a task
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: taskId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Offers retrieved
+
+  /api/offers/provider/{providerId}:
+    get:
+      summary: Get offers by provider
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: providerId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Offers retrieved
+
 components:
   securitySchemes:
     bearerAuth:
@@ -198,71 +414,51 @@ components:
         type:
           type: string
           enum: [USER, PROVIDER]
-          description: User category
         isCompany:
           type: boolean
-          description: Whether the user is a company
         email:
           type: string
           format: email
         phone:
           type: string
-          minLength: 5
         password:
           type: string
-          minLength: 6
         firstName:
           type: string
           nullable: true
-          description: Required for individuals, or company representative's first name
         lastName:
           type: string
           nullable: true
-          description: Required for individuals, or company representative's last name
         companyName:
           type: string
           nullable: true
-          description: Required if isCompany=true
         taxNumber:
           type: string
           nullable: true
-          pattern: '^[A-Z0-9]{10}$'
-          description: Required if isCompany=true; must be 10 uppercase letters or digits
         address:
           type: object
           nullable: true
           properties:
             streetNumber:
               type: string
-              minLength: 1
             streetName:
               type: string
-              minLength: 1
             city:
               type: string
-              minLength: 1
             state:
               type: string
-              minLength: 1
             postcode:
               type: string
-              minLength: 1
-          required:
-            - streetNumber
-            - streetName
-            - city
-            - state
-            - postcode
-          description: Required if isCompany=false
-
     User:
       type: object
       properties:
         id:
           type: integer
+        email:
+          type: string
+          format: email
         type:
           type: string
-          enum: [USER, PROVIDER]
         isCompany:
           type: boolean
         firstName:
@@ -277,10 +473,6 @@ components:
         taxNumber:
           type: string
           nullable: true
-          description: 10 uppercase letters or digits
-        email:
-          type: string
-          format: email
         phone:
           type: string
         address:
@@ -291,7 +483,13 @@ components:
         modifiedAt:
           type: string
           format: date-time
-
+    UserBasic:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
     Address:
       type: object
       properties:
@@ -305,11 +503,60 @@ components:
           type: string
         postcode:
           type: string
-
-    UserBasic:
+    SkillInput:
       type: object
+      required:
+        - category
+        - experience
+        - nature
+        - hourlyRate
       properties:
-        id:
+        category:
           type: string
-        email:
+        experience:
+          type: integer
+        nature:
           type: string
+          enum: [ONSITE, REMOTE, HYBRID]
+        hourlyRate:
+          type: number
+    TaskInput:
+      type: object
+      required:
+        - category
+        - name
+        - description
+        - expectedStart
+        - hours
+        - hourlyRate
+        - currency
+      properties:
+        category:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        expectedStart:
+          type: string
+          format: date-time
+        hours:
+          type: integer
+        hourlyRate:
+          type: number
+        currency:
+          type: string
+          enum: [AUD, USD, EUR]
+    OfferInput:
+      type: object
+      required:
+        - providerId
+        - taskId
+      properties:
+        providerId:
+          type: integer
+        taskId:
+          type: integer
+        status:
+          type: string
+          enum: [PENDING, ACCEPTED, REJECTED]
