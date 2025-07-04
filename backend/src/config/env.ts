@@ -4,9 +4,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 const envSchema = z.object({
-  NODE_ENV: z
-    .enum(['development', 'production', 'test'])
-    .default('development'),
+  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   DB_USER: z.string().nonempty({ message: 'DB_USER is required' }),
   DB_HOST: z.string().nonempty({ message: 'DB_HOST is required' }),
   DB_NAME: z.string().nonempty({ message: 'DB_NAME is required' }),
@@ -32,7 +30,8 @@ const envSchema = z.object({
         throw new Error('PORT must be a positive number')
       }
       return port
-    })
+    }),
+  JWT_SECRET: z.string().min(64, { message: 'JWT_SECRET must be at least 64 bit long.' })
 })
 
 const parsedEnv = envSchema.safeParse(process.env)

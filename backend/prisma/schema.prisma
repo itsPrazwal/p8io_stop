@@ -39,10 +39,12 @@ model User {
   companyName  String?    // Company
   taxNumber    String?    // Company, 10-char format validated at API level
   email        String     @unique
+  password     String     // Hashed password
   phone        String
   address      Address?   @relation(fields: [addressId], references: [id])
   addressId    Int?
   createdAt    DateTime   @default(now())
+  modifiedAt   DateTime   @updatedAt
 
   // Relations
   skills       Skill[]
@@ -71,6 +73,7 @@ model Skill {
   nature      WorkNature
   hourlyRate  Float
   createdAt   DateTime  @default(now())
+  modifiedAt  DateTime  @updatedAt
 }
 
 model Task {
@@ -86,6 +89,7 @@ model Task {
   currency       Currency
   isCompleted    Boolean   @default(false)
   createdAt      DateTime  @default(now())
+  modifiedAt     DateTime  @updatedAt
 
   offers         Offer[]
   progressLogs   TaskProgress[]
@@ -99,6 +103,7 @@ model Offer {
   taskId      Int
   status      OfferStatus @default(PENDING)
   createdAt   DateTime    @default(now())
+  modifiedAt  DateTime    @updatedAt
 }
 
 model TaskProgress {
@@ -109,4 +114,5 @@ model TaskProgress {
   providerId  Int
   description String
   createdAt   DateTime  @default(now())
+  modifiedAt  DateTime  @updatedAt
 }

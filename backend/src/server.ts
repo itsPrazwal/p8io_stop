@@ -1,12 +1,12 @@
 import app from './app.js'
 import { env } from './config/env.js'
 
-const PORT = env.PORT
-
-app.listen(PORT, async () => {
+app.listen(app.get('port'), async () => {
   try {
     /* eslint-disable no-console */
-    console.log(`Express Server started successfully on port ${PORT}.\n--- Environment: ${env.NODE_ENV.toUpperCase()}.`)
+    console.log(
+      `Express Server started successfully.\n--- Environment: ${env.NODE_ENV.toUpperCase()}.`
+    )
   } catch (error) {
     console.error('*** Error starting server:\n', error)
     /* eslint-enable no-console */
