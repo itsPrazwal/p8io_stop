@@ -36,9 +36,11 @@ app.use('/api', apiRoute)
 
 // 404 Handler
 app.use(
+  /* eslint-disable */
   (err: Error & { status: number }, req: Request, res: Response, next: NextFunction): void => {
     res.status(err.status || 500).json(getErrorObject(err, 'Internal Server Error'))
   }
+  /* eslint-enable */
 )
 
 export default app

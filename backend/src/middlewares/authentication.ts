@@ -1,6 +1,7 @@
-import { Handler } from 'express'
 import jwt from 'jsonwebtoken'
-import { AuthUser } from '../types/general'
+import { Handler } from 'express'
+
+import { AuthUser } from '../types/general.js'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey'
 

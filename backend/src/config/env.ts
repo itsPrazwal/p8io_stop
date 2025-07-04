@@ -37,8 +37,9 @@ const envSchema = z.object({
 const parsedEnv = envSchema.safeParse(process.env)
 
 if (!parsedEnv.success) {
-  // eslint-disable-next-line no-console
+  /* eslint-disable no-console */
   console.error(' Invalid environment variables:', parsedEnv.error.format())
+  /* eslint-enable no-console */
   process.exit(1)
 }
 

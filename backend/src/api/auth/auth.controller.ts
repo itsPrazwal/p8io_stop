@@ -5,6 +5,7 @@ import { Handler } from 'express'
 import * as userQuery from '../user/user.query.js'
 import { UserSchemaType } from '../../validators/auth.schema.js'
 import { env } from '../../config/env.js'
+import { AuthUser } from '../../types/general.js'
 
 export const signup: Handler = async (req, res, next) => {
   try {
@@ -21,8 +22,8 @@ export const signup: Handler = async (req, res, next) => {
     const user = await userQuery.createUser({ ...input, password: hashedPassword })
 
     res.status(201).json({ message: 'Signup successful', user: { id: user.id, email: user.email } })
-  } catch (err) {
-    next(err)
+  } catch (error) {
+    next(error)
   }
 }
 
@@ -46,16 +47,16 @@ export const login: Handler = async (req, res, next) => {
   }
 }
 
-export const getMe: Handler = async (req, res) => {
+export const getMe: Handler = async (req, res, next) => {
   try {
     const user = req.user
     res.json({ user })
-  } catch {
-    res.status(500).json({ error: 'Failed to fetch user info' })
+  } catch (error) {
+    next(error)
   }
 }
 
-export const changePassword: Handler = async (req, res) => {
+export const changePassword: Handler = async (req, res, next) => {
   try {
     const userId = req.user?.id
     const { currentPassword, newPassword } = req.body
@@ -74,11 +75,10 @@ export const changePassword: Handler = async (req, res) => {
       })
     }
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: 'Failed to change password' })
+    next(error)
   }
 }
-export const forgotPassword: Handler = async (req, res) => {
+export const forgotPassword: Handler = async (req, res, next) => {
   try {
     const { email } = req.body
     const user = await userQuery.getUserByEmail(email)
@@ -93,39 +93,34 @@ export const forgotPassword: Handler = async (req, res) => {
     // For simplicity, we are just returning it in the response
     res.json({ message: 'Password reset link sent', token })
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: 'Failed to send password reset link' })
+    next(error)
   }
 }
-export const resetPassword: Handler = async (req, res) => {
+export const resetPassword: Handler = async (req, res, next) => {
   try {
     const { token, newPassword } = req.body
-    let decoded: any
 
     try {
-      decoded = jwt.verify(token, env.JWT_SECRET)
+      const decoded = jwt.verify(token, env.JWT_SECRET) as AuthUser
+      const user = await userQuery.getUserById(decoded.id)
+      if (!user) {
+        res.status(404).json({ error: 'User not found' })
+        return
+      }
+
+      const hashedNewPassword = await bcrypt.hash(newPassword, 10)
+      await userQuery.changePassword(user.id, hashedNewPassword)
+
+      res.json({ message: 'Password reset successfully' })
     } catch (error) {
-      res.status(400).json({ error: 'Invalid or expired token' })
-      return
+      next(error)
     }
-
-    const user = await userQuery.getUserById(decoded.id)
-    if (!user) {
-      res.status(404).json({ error: 'User not found' })
-      return
-    }
-
-    const hashedNewPassword = await bcrypt.hash(newPassword, 10)
-    await userQuery.changePassword(user.id, hashedNewPassword)
-
-    res.json({ message: 'Password reset successfully' })
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: 'Failed to reset password' })
+    next(error)
   }
 }
 
-export const updateProfile: Handler = async (req, res) => {
+export const updateProfile: Handler = async (req, res, next) => {
   try {
     const userId = req.user?.id
     const input = req.body as UserSchemaType
@@ -143,12 +138,11 @@ export const updateProfile: Handler = async (req, res) => {
       })
     }
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: 'Failed to update profile' })
+    next(error)
   }
 }
 
-export const deleteAccount: Handler = async (req, res) => {
+export const deleteAccount: Handler = async (req, res, next) => {
   try {
     const userId = req.user?.id
     if (userId) {
@@ -163,7 +157,6 @@ export const deleteAccount: Handler = async (req, res) => {
       res.json({ message: 'Account deleted successfully' })
     }
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: 'Failed to delete account' })
+    next(error)
   }
 }
