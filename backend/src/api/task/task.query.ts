@@ -1,11 +1,12 @@
 import prisma from '../../config/db.js'
-import type { Task, Currency } from '@prisma/client'
+import type { Currency, Task } from '@prisma/client'
 import { TaskSchemaType } from '../../validators/task.schema'
 
-export const createTask = async (data: TaskSchemaType): Promise<Task> => {
+export const createTask = async (data: TaskSchemaType & { userId: number }): Promise<Task> => {
   return prisma.task.create({
     data: {
       ...data,
+      isCompleted: false,
       currency: data.currency as Currency
     }
   })

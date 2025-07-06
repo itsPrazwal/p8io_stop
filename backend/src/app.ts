@@ -11,11 +11,12 @@ import { getErrorObject } from './utils/response.js'
 dotenv.config()
 const app = express()
 
-// Set the port from environment variables
 app.set('port', env.PORT)
 
-// Middlewares
-app.use(cors())
+app.use(cors({
+  origin: env.FRONTEND_ORIGIN,
+  credentials: true
+}))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 

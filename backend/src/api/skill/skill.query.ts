@@ -2,7 +2,7 @@ import prisma from '../../config/db.js'
 import type { Skill, WorkNature } from '@prisma/client'
 import { SkillSchemaType } from '../../validators/skill.schema'
 
-export const createSkill = async (data: SkillSchemaType): Promise<Skill> => {
+export const createSkill = async (data: SkillSchemaType & {providerId: number}): Promise<Skill> => {
   return prisma.skill.create({
     data: {
       ...data,
@@ -27,8 +27,4 @@ export const updateSkill = async (id: number, data: Partial<SkillSchemaType>): P
       nature: data.nature as WorkNature
     }
   })
-}
-
-export const deleteSkill = async (id: number): Promise<Skill> => {
-  return prisma.skill.delete({ where: { id } })
 }

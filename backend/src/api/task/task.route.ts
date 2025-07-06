@@ -6,11 +6,11 @@ import { taskSchema, TaskSchemaType } from '../../validators/task.schema.js'
 
 const router = express.Router()
 
+router.get('/', taskController.getAllTasks)
+
 router.post('/', validateBody<TaskSchemaType>(taskSchema), taskController.createTask)
 
 router.get('/:id', taskController.getTaskById)
-
-router.get('/user/:userId', taskController.getTasksByUser)
 
 router.put(
   '/:id',
@@ -19,5 +19,6 @@ router.put(
 )
 
 router.delete('/:id', taskController.deleteTask)
+
 
 export default router

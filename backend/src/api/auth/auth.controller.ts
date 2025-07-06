@@ -6,6 +6,7 @@ import * as userQuery from '../user/user.query.js'
 import { UserSchemaType } from '../../validators/auth.schema.js'
 import { env } from '../../config/env.js'
 import { AuthUser } from '../../types/general.js'
+import { getSuccessObject } from '../../utils/response.js'
 
 export const signup: Handler = async (req, res, next) => {
   try {
@@ -21,7 +22,13 @@ export const signup: Handler = async (req, res, next) => {
 
     const user = await userQuery.createUser({ ...input, password: hashedPassword })
 
-    res.status(201).json({ message: 'Signup successful', user: { id: user.id, email: user.email } })
+    res.status(201).json(
+      getSuccessObject('User created successfully', {
+        id: user.id,
+        email: user.email,
+        type: user.type
+      })
+    )
   } catch (error) {
     next(error)
   }
@@ -41,7 +48,18 @@ export const login: Handler = async (req, res, next) => {
       expiresIn: '1d'
     })
 
-    res.json({ token, user: { id: user.id, email: user.email, type: user.type } })
+    res.status(200).cookie('token', token, {
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000, // 1 day in ms
+      path: '/api/',
+      sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: env.NODE_ENV === 'production'
+    }).json(
+      getSuccessObject('Login successful', {
+        token,
+        user: { id: user.id, email: user.email, type: user.type }
+      })
+    )
   } catch (error) {
     next(error)
   }
@@ -50,7 +68,7 @@ export const login: Handler = async (req, res, next) => {
 export const getMe: Handler = async (req, res, next) => {
   try {
     const user = req.user
-    res.json({ user })
+    res.json(getSuccessObject('User retrieved successfully', user))
   } catch (error) {
     next(error)
   }
@@ -69,10 +87,11 @@ export const changePassword: Handler = async (req, res, next) => {
       }
       const hashedNewPassword = await bcrypt.hash(newPassword, 10)
       const updatedUser = await userQuery.changePassword(userId, hashedNewPassword)
-      res.json({
-        message: 'Password changed successfully',
-        user: { id: updatedUser.id, email: updatedUser.email }
-      })
+      res.json(
+        getSuccessObject('Password changed successfully', {
+          user: { id: updatedUser.id, email: updatedUser.email }
+        })
+      )
     }
   } catch (error) {
     next(error)

@@ -31,7 +31,8 @@ const envSchema = z.object({
       }
       return port
     }),
-  JWT_SECRET: z.string().min(64, { message: 'JWT_SECRET must be at least 64 bit long.' })
+  JWT_SECRET: z.string().min(64, { message: 'JWT_SECRET must be at least 64 bit long.' }),
+  FRONTEND_ORIGIN: z.string().url({ message: 'FRONTEND_ORIGIN must be a valid URL' }).optional(),
 })
 
 const parsedEnv = envSchema.safeParse(process.env)

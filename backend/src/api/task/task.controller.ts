@@ -5,7 +5,8 @@ import { TaskSchemaType } from '../../validators/task.schema.js'
 export const createTask: Handler = async (req, res, next) => {
   try {
     const input = req.body as TaskSchemaType
-    const task = await taskQuery.createTask(input)
+    const userId = req.user?.id as number
+    const task = await taskQuery.createTask({ ...input, userId,  })
     res.status(201).json({ message: 'Task created successfully', task })
   } catch (error) {
     next(error)
@@ -26,9 +27,9 @@ export const getTaskById: Handler = async (req, res, next) => {
   }
 }
 
-export const getTasksByUser: Handler = async (req, res, next) => {
+export const getAllTasks: Handler = async (req, res, next) => {
   try {
-    const userId = Number(req.params.userId)
+    const userId = Number(req.user?.id)
     const tasks = await taskQuery.getTasksByUser(userId)
     res.json({ tasks })
   } catch (error) {

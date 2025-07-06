@@ -1,15 +1,15 @@
 import { z } from 'zod'
 
 export const taskSchema = z.object({
-  userId: z.number().int().positive(),
-  category: z.string().min(1, 'Category is required'),
-  name: z.string().min(1, 'Name is required'),
-  description: z.string().min(1, 'Description is required'),
-  expectedStart: z.coerce.date(), // Accepts ISO strings as well
-  hours: z.number().int().min(1, 'Hours must be at least 1'),
-  hourlyRate: z.number().positive(),
-  currency: z.enum(['AUD', 'USD', 'EUR', 'INR', 'GBP']),
-  isCompleted: z.boolean()
+  name: z.string().min(1, "Task Name is required"),
+  description: z.string().min(50, "Description must be at least 50 characters long"),
+  category: z.string().nonempty("Task Category is required"),
+  expectedStart: z.coerce.date(),
+  hours: z.number().min(1),
+  hourlyRate: z.number().min(1),
+  currency: z.string().refine((val) => ["USD", "AUD", "SGD", "INR"].includes(val), {
+    message: "Currency must be one of USD, EUR, GBP"
+  })
 })
 
 export type TaskSchemaType = z.infer<typeof taskSchema>
