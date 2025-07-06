@@ -1,0 +1,78 @@
+"use client";
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { ITask } from "@/types/task";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { TaskFormModal } from "@/app/dashboard/tasks/components/TaskFormModal";
+
+interface IProps {
+  tasks: ITask[];
+  handleViewTask: (id: number) => void;
+}
+
+export function TaskListTable({ tasks, handleViewTask }: IProps) {
+  const [open, setOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<ITask | undefined>(
+    undefined,
+  );
+
+  return (
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Category</TableHead>
+            <TableHead>Start Date</TableHead>
+            <TableHead>Hours</TableHead>
+            <TableHead>Rate</TableHead>
+            <TableHead>Action</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {tasks?.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={6} className="text-center">
+                No tasks found.
+              </TableCell>
+            </TableRow>
+          ) : (
+            tasks?.map((task) => (
+              <TableRow key={task.id}>
+                <TableCell className="font-medium">{task.name}</TableCell>
+                <TableCell className="capitalize">{task.category}</TableCell>
+                <TableCell>
+                  {new Date(task.expectedStart).toLocaleDateString()}
+                </TableCell>
+                <TableCell>{task.hours}</TableCell>
+                <TableCell>
+                  {task.currency} {task.hourlyRate.toFixed(2)}
+                </TableCell>
+                <TableCell>
+                  <Button onClick={() => handleViewTask(task.id)}>View</Button>
+                  <Button
+                    onClick={() => {
+                      setOpen(true);
+                      setSelectedTask(task);
+                    }}
+                  >
+                    Edit
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+      <TaskFormModal task={selectedTask} open={open} setOpen={setOpen} />
+    </div>
+  );
+}
