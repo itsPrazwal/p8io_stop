@@ -3,6 +3,7 @@ import YAML from 'yamljs'
 import dotenv from 'dotenv'
 import express, { Request, Response, NextFunction } from 'express'
 import swaggerUi from 'swagger-ui-express'
+import cookieParser from 'cookie-parser'
 
 import apiRoute from './api/api.route.js'
 import { env } from './config/env.js'
@@ -12,6 +13,7 @@ dotenv.config()
 const app = express()
 
 app.set('port', env.PORT)
+app.use(cookieParser())
 
 app.use(cors({
   origin: env.FRONTEND_ORIGIN,

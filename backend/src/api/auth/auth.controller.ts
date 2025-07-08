@@ -5,8 +5,14 @@ import { Handler } from 'express'
 import * as userQuery from '../user/user.query.js'
 import { UserSchemaType } from '../../validators/auth.schema.js'
 import { env } from '../../config/env.js'
-import { AuthUser } from '../../types/general.js'
+import { AuthUser, AuthUserBody } from '../../types/general.js'
 import { getSuccessObject } from '../../utils/response.js'
+import {
+  ACCESS_COOKIE_OPTIONS,
+  generateAccessToken,
+  generateRefreshToken,
+  REFRESH_COOKIE_OPTIONS
+} from '../../utils/auth.js'
 
 export const signup: Handler = async (req, res, next) => {
   try {
@@ -44,22 +50,25 @@ export const login: Handler = async (req, res, next) => {
       return
     }
 
-    const token = jwt.sign({ id: user.id, email: user.email, type: user.type }, env.JWT_SECRET, {
-      expiresIn: '1d'
-    })
+    const payload: AuthUserBody = {
+      id: user.id,
+      email: user.email,
+      type: user.type,
+      isCompany: user.isCompany,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      phone: user.phone,
+      companyName: user.companyName,
+      taxNumber: user.taxNumber
+    }
 
-    res.status(200).cookie('token', token, {
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // 1 day in ms
-      path: '/api/',
-      sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
-      secure: env.NODE_ENV === 'production'
-    }).json(
-      getSuccessObject('Login successful', {
-        token,
-        user: { id: user.id, email: user.email, type: user.type }
-      })
-    )
+    const accessToken = generateAccessToken(payload)
+    const refreshToken = generateRefreshToken(payload)
+
+    res
+      .cookie('token', accessToken, ACCESS_COOKIE_OPTIONS)
+      .cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS)
+      .json(getSuccessObject('Login successful', null))
   } catch (error) {
     next(error)
   }
@@ -155,25 +164,6 @@ export const updateProfile: Handler = async (req, res, next) => {
         message: 'Profile updated successfully',
         user: { id: updatedUser.id, email: updatedUser.email }
       })
-    }
-  } catch (error) {
-    next(error)
-  }
-}
-
-export const deleteAccount: Handler = async (req, res, next) => {
-  try {
-    const userId = req.user?.id
-    if (userId) {
-      const user = await userQuery.getUserById(userId)
-
-      if (!user) {
-        res.status(404).json({ error: 'User not found' })
-        return
-      }
-
-      await userQuery.deleteUser(userId)
-      res.json({ message: 'Account deleted successfully' })
     }
   } catch (error) {
     next(error)

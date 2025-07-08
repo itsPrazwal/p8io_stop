@@ -1,11 +1,12 @@
 import { Handler } from 'express'
 import * as offerQuery from './offer.query.js'
 import { OfferSchemaType } from '../../validators/offer.schema.js'
+import { OfferStatus } from '@prisma/client'
 
 export const createOffer: Handler = async (req, res, next) => {
   try {
     const input = req.body as OfferSchemaType
-    const offer = await offerQuery.createOffer(input)
+    const offer = await offerQuery.createOffer({ ...input, providerId: req.user?.id as number })
     res.status(201).json({ message: 'Offer created successfully', offer })
   } catch (error) {
     next(error)
@@ -38,7 +39,7 @@ export const getOffersByTask: Handler = async (req, res, next) => {
 
 export const getOffersByProvider: Handler = async (req, res, next) => {
   try {
-    const providerId = Number(req.params.providerId)
+    const providerId = Number(req.user?.id)
     const offers = await offerQuery.getOffersByProvider(providerId)
     res.json({ offers })
   } catch (error) {
@@ -46,12 +47,12 @@ export const getOffersByProvider: Handler = async (req, res, next) => {
   }
 }
 
-export const updateOffer: Handler = async (req, res, next) => {
+export const updateOfferStatus: Handler = async (req, res, next) => {
   try {
     const id = Number(req.params.id)
-    const input = req.body as Partial<OfferSchemaType>
-    const offer = await offerQuery.updateOffer(id, input)
-    res.json({ message: 'Offer updated successfully', offer })
+    const input = req.body as { status: OfferStatus }
+    const offer = await offerQuery.updateOfferStatus(id, input.status)
+    res.json({ message: 'Offer status updated successfully', offer })
   } catch (error) {
     next(error)
   }

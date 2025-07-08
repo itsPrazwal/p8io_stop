@@ -1,9 +1,9 @@
-import { AuthUser } from './general.js'
+import { AuthUserBody } from './general.js'
 
 declare global {
   namespace Express {
     interface Request {
-      user?: AuthUser
+      user?: AuthUserBody
     }
   }
 }
