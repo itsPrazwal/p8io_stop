@@ -1,36 +1,19 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react"
-
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem, SidebarTrigger,
-} from "@/components/ui/sidebar"
+  SidebarMenuItem,
+  SidebarSeparator,
+} from "@/components/ui/sidebar";
+import { NAVIGATIONS } from "@/lib/constants/navigation";
+import { IUser } from "@/types/user";
 
-// Menu items.
-const items = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: Home,
-  },
-  {
-    title: "Tasks",
-    url: "/dashboard/tasks",
-    icon: Inbox,
-  },
-  {
-    title: "Profile",
-    url: "/dashboard/profile",
-    icon: Settings,
-  },
-]
-
-export function AppSidebar() {
+export function AppSidebar({ user }: { user: IUser }) {
   return (
     <Sidebar>
       <SidebarContent>
@@ -38,7 +21,9 @@ export function AppSidebar() {
           <SidebarGroupLabel>P8IO STOP</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {NAVIGATIONS.filter((item) =>
+                user.type === "USER" ? !item.onlyProvider : true,
+              ).map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <a href={item.url}>
@@ -51,7 +36,15 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        <SidebarFooter>
+          <SidebarSeparator />
+          <h3>
+            {user.isCompany
+              ? `${user.companyName} (${user.firstName})`
+              : `${user.firstName} ${user.lastName}`}
+          </h3>
+        </SidebarFooter>
       </SidebarContent>
     </Sidebar>
-  )
+  );
 }

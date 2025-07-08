@@ -1,4 +1,4 @@
-export type AddressType = {
+export interface AddressType {
   streetNumber: string
   streetName: string
   city: string
@@ -6,44 +6,43 @@ export type AddressType = {
   postcode: string
 }
 
-export type UserType = {
-  type: 'USER' | 'PROVIDER'
-  isCompany: boolean
-  email: string
-  phone: string
-  password: string
-  firstName: string | null
-  lastName: string | null
-  companyName?: string | null
-  taxNumber?: string | null
-  address?: AddressType
+interface IUserCompany {
+  isCompany: true
+  companyName: string
+  taxNumber: string
 }
 
-export type UserResponseType = {
+interface IUserIndividual {
+  isCompany: false
+}
+
+interface IUserBasic {
   id: number
-  email: string
   type: 'USER' | 'PROVIDER'
-  isCompany: boolean
+  email: string
   phone: string
   firstName: string | null
   lastName: string | null
-  companyName?: string | null
-  taxNumber?: string | null
+}
+
+export type IUser = IUserBasic & IUserIndividual | IUserBasic & IUserCompany;
+
+export type IUserExtended = IUser & {
   address?: AddressType
   createdAt: string
   modifiedAt: string
 }
 
-export type ChangePasswordInput = {
+export interface ChangePasswordInput {
   currentPassword: string
   newPassword: string
 }
 
-export type ResetPasswordInput = {
+export interface ResetPasswordInput {
   token: string
   newPassword: string
 }
 
-export type ForgotPasswordInput = {
+export interface ForgotPasswordInput {
   email: string
 }

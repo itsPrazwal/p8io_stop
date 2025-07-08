@@ -1,40 +1,56 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { jwtVerify } from "jose";
 
-const DEMO_TOKEN =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwiZW1haWwiOiJwcmF6d2FsQG1sa3IuY29tIiwidHlwZSI6IlVTRVIiLCJpYXQiOjE3NTE3OTc0MDUsImV4cCI6MTc1MTg4MzgwNX0.s1sQHXb6r3Ri0Vmf6OY3RgPj6WHqtkq905YQrvSIzVc";
+const USER_PATH_KEYS = ["/dashboard", "/dashboard/tasks", "/dashboard/profile"];
+const PROVIDER_PATH_KEYS = [
+  "/dashboard",
+  "/dashboard/tasks",
+  "/dashboard/skills",
+  "/dashboard/offers",
+  "/dashboard/profile",
+];
+
+async function verifyToken(token: string) {
+  const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+  return jwtVerify(token, secret);
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const cookieStore = await cookies();
 
-  cookieStore.set("token", DEMO_TOKEN, {
-    path: "/api",
-    httpOnly: true,
-    secure: true,
-  });
+  const token = request.cookies.get("token")?.value;
 
-  console.log(`Middleware triggered for path: ${pathname}`);
+  if (token) {
+    if (pathname.startsWith("/dashboard")) {
+      try {
+        const verifiedToken = await verifyToken(token);
 
-  // If the route is public, allow access
-  if (!pathname.startsWith("/dashboard")) {
-    console.log(`Public path accessed: ${pathname}`);
-    return NextResponse.next();
+        if (
+          verifiedToken.payload.type === "USER"
+            ? !USER_PATH_KEYS.some((key) => pathname === key)
+            : !PROVIDER_PATH_KEYS.some((key) => pathname === key)
+        ) {
+          return NextResponse.redirect(new URL("/dashboard", request.url));
+        }else{
+          return NextResponse.next();
+        }
+      } catch (error) {
+        const response = NextResponse.next();
+        response.cookies.delete("token").delete("refreshToken");
+
+        return response;
+      }
+    } else {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+  } else {
+    if (pathname.startsWith("/dashboard")) {
+      const redirectUrl = new URL("/auth/login", request.url);
+      redirectUrl.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(redirectUrl);
+    }
   }
-
-  const token = cookieStore.get("token")?.value;
-
-  // If no token, redirect to login
-  if (!token) {
-    console.log(`No token found for path: ${pathname}`);
-    const loginUrl = new URL("/auth/login", request.url);
-    loginUrl.searchParams.set("redirect", pathname); // optional: return after login
-    return NextResponse.redirect(loginUrl);
-  }
-  console.log(`Protected path accessed: ${pathname}`);
-
-  return NextResponse.next();
 }
 
 export const config = {

@@ -12,6 +12,8 @@ import { ITask } from "@/types/task";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { TaskFormModal } from "@/app/dashboard/tasks/components/TaskFormModal";
+import { TaskOfferConfirmationModal } from "@/app/dashboard/tasks/components/TaskOfferConfirmationModal";
+import { TaskOfferListModal } from "@/app/dashboard/tasks/components/TaskOfferListModal";
 
 interface IProps {
   tasks: ITask[];
@@ -20,9 +22,12 @@ interface IProps {
 
 export function TaskListTable({ tasks, handleViewTask }: IProps) {
   const [open, setOpen] = useState(false);
+  const [openOfferModal, setOpenOfferModal] = useState(false);
+  const [openOfferListModal, setOpenOfferListModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState<ITask | undefined>(
     undefined,
   );
+  const [offerTaskId, setOfferTaskId] = useState<number>(-1);
 
   return (
     <div className="rounded-md border">
@@ -56,7 +61,7 @@ export function TaskListTable({ tasks, handleViewTask }: IProps) {
                 <TableCell>
                   {task.currency} {task.hourlyRate.toFixed(2)}
                 </TableCell>
-                <TableCell>
+                <TableCell className="flex gap-2">
                   <Button onClick={() => handleViewTask(task.id)}>View</Button>
                   <Button
                     onClick={() => {
@@ -66,6 +71,22 @@ export function TaskListTable({ tasks, handleViewTask }: IProps) {
                   >
                     Edit
                   </Button>
+                  <Button
+                    onClick={() => {
+                      setOpenOfferModal(true);
+                      setOfferTaskId(task.id);
+                    }}
+                  >
+                    Make Offer
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setOfferTaskId(task.id);
+                      setOpenOfferListModal(true);
+                    }}
+                  >
+                    View Offers
+                  </Button>
                 </TableCell>
               </TableRow>
             ))
@@ -73,6 +94,8 @@ export function TaskListTable({ tasks, handleViewTask }: IProps) {
         </TableBody>
       </Table>
       <TaskFormModal task={selectedTask} open={open} setOpen={setOpen} />
+      <TaskOfferConfirmationModal taskId={offerTaskId} open={openOfferModal} setOpen={setOpenOfferModal} />
+      <TaskOfferListModal taskId={offerTaskId} open={openOfferListModal} setOpen={setOpenOfferListModal} />
     </div>
   );
 }
