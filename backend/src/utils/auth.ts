@@ -5,7 +5,7 @@ import { env } from '../config/env.js'
 import { CookieOptions } from 'express-serve-static-core'
 
 export const generateAccessToken = (payload: AuthUserBody) =>
-  jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: 1000 * 60 }) // 1 minute
+  jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: 1000 * 60 * 15 }) // 15 minutes
 
 export const generateRefreshToken = (payload: AuthUserBody) =>
   jwt.sign(payload, process.env.JWT_REFRESH_SECRET!, { expiresIn: 1000 * 60 * 60 * 24 }) // 1 day
@@ -19,7 +19,7 @@ const COOKIE_OPTIONS:CookieOptions = {
 
 export const ACCESS_COOKIE_OPTIONS: CookieOptions = {
   ...COOKIE_OPTIONS,
-  maxAge: 1000 * 60 // 1 minute
+  maxAge: 1000 * 60 * 15 // 15 minutes
 }
 
 export const REFRESH_COOKIE_OPTIONS: CookieOptions = {
