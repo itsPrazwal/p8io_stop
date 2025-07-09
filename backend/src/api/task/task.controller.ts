@@ -6,7 +6,7 @@ export const createTask: Handler = async (req, res, next) => {
   try {
     const input = req.body as TaskSchemaType
     const userId = req.user?.id as number
-    const task = await taskQuery.createTask({ ...input, userId,  })
+    const task = await taskQuery.createTask({ ...input, userId })
     res.status(201).json({ message: 'Task created successfully', task })
   } catch (error) {
     next(error)
@@ -30,8 +30,15 @@ export const getTaskById: Handler = async (req, res, next) => {
 export const getAllTasks: Handler = async (req, res, next) => {
   try {
     const userId = Number(req.user?.id)
-    const tasks = await taskQuery.getTasksByUser(userId)
-    res.json({ tasks })
+    const userType = req.user?.type
+
+    if (userType === 'PROVIDER') {
+      const tasks = await taskQuery.getAllTaskForProvider(userId)
+      res.json({ tasks })
+    } else {
+      const tasks = await taskQuery.getTasksByUser(userId)
+      res.json({ tasks })
+    }
   } catch (error) {
     next(error)
   }
