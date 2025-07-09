@@ -19,7 +19,7 @@ const COOKIE_OPTIONS:CookieOptions = {
 
 export const ACCESS_COOKIE_OPTIONS: CookieOptions = {
   ...COOKIE_OPTIONS,
-  maxAge: 1000 * 60 * 15 // 15 minutes
+  maxAge: 1000 * 60 * 60 // 1 hour
 }
 
 export const REFRESH_COOKIE_OPTIONS: CookieOptions = {

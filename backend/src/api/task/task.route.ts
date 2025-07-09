@@ -12,7 +12,11 @@ router.post('/', validateBody<TaskSchemaType>(taskSchema), taskController.create
 
 router.get('/having-offers', taskController.getTasksHavingOffer)
 
+router.get('/approved', taskController.getApprovedTask)
+
 router.patch('/start/:id', taskController.startTaskById)
+
+router.patch('/complete/:id', taskController.completeTaskById)
 
 router.get('/:id', taskController.getTaskById)
 

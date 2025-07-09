@@ -1,5 +1,5 @@
 import prisma from '../../config/db.js'
-import type { Currency, Task } from '@prisma/client'
+import { Currency, OfferStatus, Task } from '@prisma/client'
 import { TaskSchemaType } from '../../validators/task.schema'
 
 export const createTask = async (data: TaskSchemaType & { userId: number }): Promise<Task> => {
@@ -101,6 +101,35 @@ export const startTaskById = async (id: number): Promise<Task | null> => {
     data: { isCompleted: false, startDate: new Date() }
   })
 }
+
+export const completeTaskById = async (id: number): Promise<Task | null> => {
+  return prisma.task.update({
+    where: { id },
+    data: { isCompleted: true }
+  })
+}
+
+export const getApprovedTasksForProvider = async (providerId: number) => {
+  return prisma.task.findMany({
+    where: {
+      offers: {
+        some: {
+          providerId,
+          status: 'ACCEPTED' as OfferStatus,
+        },
+      },
+    },
+    include: {
+      offers: {
+        where: {
+          providerId,
+          status: 'ACCEPTED' as OfferStatus,
+        },
+      },
+    },
+  })
+}
+
 
 export const deleteTask = async (id: number): Promise<Task> => {
   return prisma.task.delete({ where: { id } })

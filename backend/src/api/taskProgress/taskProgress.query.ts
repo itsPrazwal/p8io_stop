@@ -19,6 +19,9 @@ export const getAllTaskProgress = async (taskId: number):Promise<TaskProgress[]>
   return prisma.taskProgress.findMany({
     where: {
       taskId
+    },
+    orderBy:{
+      createdAt: 'desc'
     }
   })
 }

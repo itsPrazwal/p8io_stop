@@ -33,3 +33,18 @@ export async function getTasksHavingOffer() {
   const response = await api.get("/task/having-offers")
   return response.data
 }
+
+export async function getApprovedTasks() {
+  const response = await api.get("/task/approved")
+  return response.data
+}
+
+export async function startTask(id: number) {
+  const response = await api.patch(`/task/start/${id}`)
+  return response.data
+}
+
+export async function completeTask(id: number) {
+  const response = await api.patch(`/task/complete/${id}`)
+  return response.data
+}

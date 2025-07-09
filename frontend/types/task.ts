@@ -11,6 +11,7 @@ export interface ITask {
   isCompleted: boolean
   createdAt: string
   modifiedAt: string
+  startDate: string | null
   offers: {
     id?: number
     status: string

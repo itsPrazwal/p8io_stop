@@ -9,6 +9,7 @@ const PROVIDER_PATH_KEYS = [
   "/dashboard/skills",
   "/dashboard/offers",
   "/dashboard/profile",
+  "/dashboard/task-progress"
 ];
 
 async function verifyToken(token: string) {

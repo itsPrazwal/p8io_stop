@@ -12,6 +12,12 @@ export const NAVIGATIONS = [
     icon: ListTodo,
   },
   {
+    title: "Tasks Progress",
+    url: "/dashboard/task-progress",
+    onlyProvider: true,
+    icon: ListTodo,
+  },
+  {
     title: "Skills",
     url: "/dashboard/skills",
     onlyProvider: true,

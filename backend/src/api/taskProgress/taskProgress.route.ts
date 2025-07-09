@@ -16,7 +16,7 @@ router.post(
   TaskProgressController.createTaskProgress
 )
 
-router.get('/task/task:id', TaskProgressController.getTaskProgressList)
+router.get('/task/:taskId', TaskProgressController.getTaskProgressList)
 
 router.get('/:id', TaskProgressController.getTaskProgressById)
 

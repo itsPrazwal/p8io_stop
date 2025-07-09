@@ -1,7 +1,6 @@
 import { Handler } from 'express'
 import * as taskQuery from './task.query.js'
 import { TaskSchemaType } from '../../validators/task.schema.js'
-import { getSuccessObject } from '../../utils/response'
 
 export const createTask: Handler = async (req, res, next) => {
   try {
@@ -66,7 +65,7 @@ export const getTasksHavingOffer: Handler = async (req, res, next) => {
   }
 }
 
-export const startTaskById:Handler = async (req, res, next) => {
+export const startTaskById: Handler = async (req, res, next) => {
   try {
     const id = Number(req.params.id)
     const task = await taskQuery.startTaskById(id)
@@ -74,7 +73,31 @@ export const startTaskById:Handler = async (req, res, next) => {
       next({ message: 'Task not found or already started' })
       return
     }
-    res.status(200).json(getSuccessObject("task started successfully", task))
+    res.status(200).json({ message: 'Task started successfully' })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const getApprovedTask: Handler = async (req, res, next) => {
+  try {
+    const userId = Number(req.user?.id)
+    const tasks = await taskQuery.getApprovedTasksForProvider(userId)
+    res.json({ tasks })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const completeTaskById: Handler = async (req, res, next) => {
+  try {
+    const id = Number(req.params.id)
+    const task = await taskQuery.completeTaskById(id)
+    if (!task) {
+      next({ message: 'Task not found or already completed' })
+      return
+    }
+    res.json({ message: 'Task completed successfully', task })
   } catch (error) {
     next(error)
   }
