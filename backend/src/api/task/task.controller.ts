@@ -48,6 +48,16 @@ export const updateTask: Handler = async (req, res, next) => {
   }
 }
 
+export const getTasksHavingOffer: Handler = async (req, res, next) => {
+  try {
+    const userId = Number(req.user?.id)
+    const taskIds = await taskQuery.getTasksHavingOffer(userId)
+    res.json({ taskIds })
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const deleteTask: Handler = async (req, res, next) => {
   try {
     const id = Number(req.params.id)

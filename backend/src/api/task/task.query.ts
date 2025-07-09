@@ -30,6 +30,26 @@ export const updateTask = async (id: number, data: Partial<TaskSchemaType>): Pro
   })
 }
 
+export const getTasksHavingOffer = async (userId: number): Promise<{[key: number]: number}> =>{
+  const data = await prisma.task.findMany({
+    where: {
+      userId,
+      offers: {
+        some: {}
+      }
+    },
+    select: {
+      id: true,
+      _count: {
+        select: { offers: true }
+      }
+    },
+  })
+
+  return data.reduce((acc, curr) => ({...acc, [curr.id]: curr._count.offers}), {})
+}
+
 export const deleteTask = async (id: number): Promise<Task> => {
   return prisma.task.delete({ where: { id } })
 }
+

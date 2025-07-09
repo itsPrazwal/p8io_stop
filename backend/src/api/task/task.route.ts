@@ -10,6 +10,8 @@ router.get('/', taskController.getAllTasks)
 
 router.post('/', validateBody<TaskSchemaType>(taskSchema), taskController.createTask)
 
+router.get('/having-offers', taskController.getTasksHavingOffer)
+
 router.get('/:id', taskController.getTaskById)
 
 router.put(

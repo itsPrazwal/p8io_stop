@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken'
 import { Handler } from 'express'
 
 import * as userQuery from '../user/user.query.js'
-import { UserSchemaType } from '../../validators/auth.schema.js'
+import { UserPasswordType, UserSchemaType } from '../../validators/auth.schema.js'
 import { env } from '../../config/env.js'
 import { AuthUser, AuthUserBody } from '../../types/general.js'
 import { getSuccessObject } from '../../utils/response.js'
@@ -86,21 +86,20 @@ export const getMe: Handler = async (req, res, next) => {
 export const changePassword: Handler = async (req, res, next) => {
   try {
     const userId = req.user?.id
-    const { currentPassword, newPassword } = req.body
+    const { oldPassword, newPassword } = req.body as UserPasswordType
 
     if (userId) {
       const user = await userQuery.getUserById(userId)
-      if (!user || !(await bcrypt.compare(currentPassword, user.password))) {
+      if (!user || !(await bcrypt.compare(oldPassword, user.password))) {
         res.status(401).json({ error: 'Current password is incorrect' })
         return
       }
       const hashedNewPassword = await bcrypt.hash(newPassword, 10)
-      const updatedUser = await userQuery.changePassword(userId, hashedNewPassword)
-      res.json(
-        getSuccessObject('Password changed successfully', {
-          user: { id: updatedUser.id, email: updatedUser.email }
-        })
-      )
+      await userQuery.changePassword(userId, hashedNewPassword)
+      res
+        .clearCookie('token', ACCESS_COOKIE_OPTIONS)
+        .clearCookie('refreshToken', REFRESH_COOKIE_OPTIONS)
+        .json(getSuccessObject('Password changed successfully', null))
     }
   } catch (error) {
     next(error)
@@ -148,23 +147,12 @@ export const resetPassword: Handler = async (req, res, next) => {
   }
 }
 
-export const updateProfile: Handler = async (req, res, next) => {
+export const logout: Handler = async (req, res, next) => {
   try {
-    const userId = req.user?.id
-    const input = req.body as UserSchemaType
-
-    if (userId) {
-      const user = await userQuery.getUserById(userId)
-      if (!user) {
-        res.status(404).json({ error: 'User not found' })
-        return
-      }
-      const updatedUser = await userQuery.updateUser(userId, input)
-      res.json({
-        message: 'Profile updated successfully',
-        user: { id: updatedUser.id, email: updatedUser.email }
-      })
-    }
+    res
+      .clearCookie('token', ACCESS_COOKIE_OPTIONS)
+      .clearCookie('refreshToken', REFRESH_COOKIE_OPTIONS)
+      .json(getSuccessObject('Logout successful', null))
   } catch (error) {
     next(error)
   }
