@@ -14,13 +14,16 @@ import { useState } from "react";
 import { TaskFormModal } from "@/app/dashboard/tasks/components/TaskFormModal";
 import { TaskOfferConfirmationModal } from "@/app/dashboard/tasks/components/TaskOfferConfirmationModal";
 import { TaskOfferListModal } from "@/app/dashboard/tasks/components/TaskOfferListModal";
+import { View, Settings } from "lucide-react";
+import { useUserProfile } from "@/lib/hooks/user.queries";
 
 interface IProps {
   tasks: ITask[];
+  tasksHavingOffer?: {[key: number]: number};
   handleViewTask: (id: number) => void;
 }
 
-export function TaskListTable({ tasks, handleViewTask }: IProps) {
+export function TaskListTable({ tasks, handleViewTask, tasksHavingOffer }: IProps) {
   const [open, setOpen] = useState(false);
   const [openOfferModal, setOpenOfferModal] = useState(false);
   const [openOfferListModal, setOpenOfferListModal] = useState(false);
@@ -28,6 +31,8 @@ export function TaskListTable({ tasks, handleViewTask }: IProps) {
     undefined,
   );
   const [offerTaskId, setOfferTaskId] = useState<number>(-1);
+
+  const { data: user } = useUserProfile();
 
   return (
     <div className="rounded-md border">
@@ -62,31 +67,46 @@ export function TaskListTable({ tasks, handleViewTask }: IProps) {
                   {task.currency} {task.hourlyRate.toFixed(2)}
                 </TableCell>
                 <TableCell className="flex gap-2">
-                  <Button onClick={() => handleViewTask(task.id)}>View</Button>
+                  <Button
+                    onClick={() => handleViewTask(task.id)}
+                    variant="ghost"
+                    title="View Task"
+                  >
+                    <View />
+                  </Button>
                   <Button
                     onClick={() => {
                       setOpen(true);
                       setSelectedTask(task);
                     }}
+                    variant="ghost"
+                    title="Edit Task"
                   >
-                    Edit
+                    <Settings />
                   </Button>
-                  <Button
-                    onClick={() => {
-                      setOpenOfferModal(true);
-                      setOfferTaskId(task.id);
-                    }}
-                  >
-                    Make Offer
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setOfferTaskId(task.id);
-                      setOpenOfferListModal(true);
-                    }}
-                  >
-                    View Offers
-                  </Button>
+                  {user?.type === "USER" ? (
+                    <Button
+                      onClick={() => {
+                        setOfferTaskId(task.id);
+                        setOpenOfferListModal(true);
+                      }}
+                      variant="outline"
+                      disabled={!tasksHavingOffer?.[task.id]}
+                    >
+                      <strong>{tasksHavingOffer?.[task.id] || 0}</strong>
+                      {tasksHavingOffer?.[task.id] && tasksHavingOffer?.[task.id] > 1 ? "Offers" : "Offer"}
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => {
+                        setOpenOfferModal(true);
+                        setOfferTaskId(task.id);
+                      }}
+                      variant="outline"
+                    >
+                      Make Offer
+                    </Button>
+                  )}
                 </TableCell>
               </TableRow>
             ))
@@ -94,8 +114,16 @@ export function TaskListTable({ tasks, handleViewTask }: IProps) {
         </TableBody>
       </Table>
       <TaskFormModal task={selectedTask} open={open} setOpen={setOpen} />
-      <TaskOfferConfirmationModal taskId={offerTaskId} open={openOfferModal} setOpen={setOpenOfferModal} />
-      <TaskOfferListModal taskId={offerTaskId} open={openOfferListModal} setOpen={setOpenOfferListModal} />
+      <TaskOfferConfirmationModal
+        taskId={offerTaskId}
+        open={openOfferModal}
+        setOpen={setOpenOfferModal}
+      />
+      <TaskOfferListModal
+        taskId={offerTaskId}
+        open={openOfferListModal}
+        setOpen={setOpenOfferListModal}
+      />
     </div>
   );
 }

@@ -1,12 +1,16 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { loginUser, signupUser } from "@/lib/api/auth";
+import {
+  changePassword,
+  loginUser,
+  logoutUser,
+  signupUser,
+} from "@/lib/api/auth";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { UserLoginSchemaType, UserSignupSchemaType } from "@/types/schema";
 import { LoginResponse } from "@/types/auth";
-import { useSearchParams } from 'next/navigation'
 
 export function useSignup() {
   const router = useRouter();
@@ -36,6 +40,37 @@ export function useLogin() {
     },
     onError: (err: any) => {
       toast.error(err?.response?.data?.error || "Login failed");
+    },
+  });
+}
+
+export function useLogout() {
+  const router = useRouter();
+  return useMutation({
+    mutationFn: () => logoutUser(),
+    onSuccess: () => {
+      toast.success("Logout successful!");
+      router.push("/auth/login");
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.error || "Logout failed");
+    },
+  });
+}
+
+export function useChangePassword() {
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: (data: { oldPassword: string; newPassword: string }) =>
+      changePassword(data),
+    onSuccess: async () => {
+      toast.success("Password changed successfully!");
+      toast("Please login again to continue!");
+      router.push("/auth/login");
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.error || "Failed to change password");
     },
   });
 }

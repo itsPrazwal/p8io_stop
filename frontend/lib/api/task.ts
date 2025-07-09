@@ -27,3 +27,9 @@ export async function updateTask(id: number, data: TaskFormSchemaType) {
   const response = await api.put(`/task/${id}`, data)
   return response.data
 }
+
+// Get tasks that have offers
+export async function getTasksHavingOffer() {
+  const response = await api.get("/task/having-offers")
+  return response.data
+}

@@ -15,6 +15,7 @@ import {
 } from "@/lib/hooks/offer.queries";
 import { Button } from "@/components/ui/button";
 import { IOffer } from "@/types/offer";
+import { twMerge } from "tailwind-merge";
 
 interface IProps {
   taskId: number;
@@ -34,7 +35,10 @@ export function TaskOfferListModal({ taskId, open, setOpen }: IProps) {
   }, [taskId, open, refetch]);
 
   const handleStatusChange =
-    (status: "ACCEPTED" | "REJECTED", offerId: number): MouseEventHandler<HTMLButtonElement> =>
+    (
+      status: "ACCEPTED" | "REJECTED",
+      offerId: number,
+    ): MouseEventHandler<HTMLButtonElement> =>
     (e) => {
       e.preventDefault();
       if (!taskId) {
@@ -65,21 +69,54 @@ export function TaskOfferListModal({ taskId, open, setOpen }: IProps) {
         ) : data.offers?.length && !error ? (
           <div className="space-y-4">
             {data?.offers.map((offer: IOffer) => (
-              <div key={offer.id} className="p-4 border rounded-md">
-                <h3 className="font-semibold">ID: {offer.id}</h3>
-                <p>
-                  By: {offer.provider.firstName} {offer.provider.lastName}
-                </p>
-                {offer.provider.isCompany && (
-                  <p>Company: {offer.provider.companyName}</p>
+              <div
+                key={offer.id}
+                className={twMerge(
+                  "p-4 border rounded-md flex items-center h-24 overflow-hidden",
+                  offer.status === "PENDING"
+                    ? ""
+                    : offer.status === "ACCEPTED"
+                    ? "bg-green-50 border-green-200"
+                    : "bg-red-50 border-red-200",
                 )}
-                <Button onClick={handleStatusChange("ACCEPTED", offer.id)}>Accept</Button>
-                <Button
-                  variant="outline"
-                  onClick={handleStatusChange("REJECTED", offer.id)}
-                >
-                  Reject
-                </Button>
+              >
+                <h3 className="font-semibold h-full w-1/6 flex items-center justify-center">
+                  ID: {offer.id}
+                </h3>
+                <div className="flex flex-col justify-center items-start w-4/6 px-8 capitalize border-x">
+                  {offer.provider.isCompany && (
+                    <strong>{offer.provider.companyName}</strong>
+                  )}
+                  <p>
+                    {offer.provider.firstName} {offer.provider.lastName}
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-2 w-1/6 px-2">
+                  {offer.status === "PENDING" ? (
+                    <>
+                      <Button
+                        onClick={handleStatusChange("ACCEPTED", offer.id)}
+                      >
+                        Accept
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={handleStatusChange("REJECTED", offer.id)}
+                      >
+                        Reject
+                      </Button>
+                    </>
+                  ) : (
+                    <div>
+                      <span
+                        className={`text-sm font-semibold ${offer.status === "ACCEPTED" ? "text-green-600" : "text-red-600"}`}
+                      >
+                        {offer.status}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>

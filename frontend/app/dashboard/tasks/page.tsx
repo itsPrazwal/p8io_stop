@@ -1,6 +1,6 @@
 "use client";
 
-import { useTasks } from "@/lib/hooks/task.queries";
+import { useTasks, useTasksHavingOffer } from "@/lib/hooks/task.queries";
 import { TaskListTable } from "@/app/dashboard/tasks/components/TaskList";
 import { TaskHeader } from "@/app/dashboard/tasks/components/TaskHeader";
 import { useState } from "react";
@@ -8,8 +8,11 @@ import { TaskDetailsDrawer } from "@/app/dashboard/tasks/components/TaskDetailDr
 
 export default function TaskPage() {
   const { data } = useTasks();
+  const { data: { taskIds = [] } = {} } = useTasksHavingOffer();
 
-  const [selectedTaskId, setSelectedTaskId] = useState<number | undefined>(undefined);
+  const [selectedTaskId, setSelectedTaskId] = useState<number | undefined>(
+    undefined,
+  );
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const handleViewTask = (id: number) => {
@@ -23,6 +26,7 @@ export default function TaskPage() {
       <TaskListTable
         tasks={data?.tasks || []}
         handleViewTask={handleViewTask}
+        tasksHavingOffer={taskIds}
       />
       <TaskDetailsDrawer
         open={drawerOpen}

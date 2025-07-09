@@ -54,7 +54,6 @@ export function useCreateOffer() {
 }
 
 export function useUpdateOfferStatus() {
-  const router = useRouter();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -63,7 +62,6 @@ export function useUpdateOfferStatus() {
     onSuccess: () => {
       toast.success("Offer updated successfully!");
       queryClient.invalidateQueries({ queryKey: ["offers"] });
-      router.push("/dashboard/offers");
     },
     onError: (err: any) => {
       toast.error(err?.response?.data?.error || "Failed to update offer");
