@@ -84,6 +84,7 @@ model Task {
   name           String
   description    String
   expectedStart  DateTime
+  startDate      DateTime?
   hours          Int
   hourlyRate     Float
   currency       Currency
@@ -113,6 +114,7 @@ model TaskProgress {
   provider    User      @relation(fields: [providerId], references: [id])
   providerId  Int
   description String
+  hoursWorked Int?
   createdAt   DateTime  @default(now())
   modifiedAt  DateTime  @updatedAt
 }
