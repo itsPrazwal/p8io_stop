@@ -14,25 +14,38 @@ import { useState } from "react";
 import { TaskFormModal } from "@/app/dashboard/tasks/components/TaskFormModal";
 import { TaskOfferConfirmationModal } from "@/app/dashboard/tasks/components/TaskOfferConfirmationModal";
 import { TaskOfferListModal } from "@/app/dashboard/tasks/components/TaskOfferListModal";
-import { View, Settings } from "lucide-react";
+import { CircleDashed, Settings, TicketPercent, View } from "lucide-react";
 import { useUserProfile } from "@/lib/hooks/user.queries";
+import { twMerge } from "tailwind-merge";
 
 interface IProps {
   tasks: ITask[];
-  tasksHavingOffer?: {[key: number]: number};
+  tasksHavingOffer?: { [key: number]: number };
   handleViewTask: (id: number) => void;
 }
 
-export function TaskListTable({ tasks, handleViewTask, tasksHavingOffer }: IProps) {
-  const [open, setOpen] = useState(false);
+export function TaskListTable({
+  tasks,
+  handleViewTask,
+  tasksHavingOffer,
+}: IProps) {
+  const [openOfferForm, setOpenOfferForm] = useState(false);
   const [openOfferModal, setOpenOfferModal] = useState(false);
   const [openOfferListModal, setOpenOfferListModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState<ITask | undefined>(
     undefined,
   );
-  const [offerTaskId, setOfferTaskId] = useState<number>(-1);
-
   const { data: user } = useUserProfile();
+
+  const onOfferModalClose = (val: boolean) => {
+    setOpenOfferModal(val);
+    setSelectedTask(undefined);
+  };
+
+  const onOfferListModalClose = (val: boolean) => {
+    setOpenOfferListModal(val);
+    setSelectedTask(undefined);
+  };
 
   return (
     <div className="rounded-md border">
@@ -55,74 +68,111 @@ export function TaskListTable({ tasks, handleViewTask, tasksHavingOffer }: IProp
               </TableCell>
             </TableRow>
           ) : (
-            tasks?.map((task) => (
-              <TableRow key={task.id}>
-                <TableCell className="font-medium">{task.name}</TableCell>
-                <TableCell className="capitalize">{task.category}</TableCell>
-                <TableCell>
-                  {new Date(task.expectedStart).toLocaleDateString()}
-                </TableCell>
-                <TableCell>{task.hours}</TableCell>
-                <TableCell>
-                  {task.currency} {task.hourlyRate.toFixed(2)}
-                </TableCell>
-                <TableCell className="flex gap-2">
-                  <Button
-                    onClick={() => handleViewTask(task.id)}
-                    variant="ghost"
-                    title="View Task"
-                  >
-                    <View />
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setOpen(true);
-                      setSelectedTask(task);
-                    }}
-                    variant="ghost"
-                    title="Edit Task"
-                  >
-                    <Settings />
-                  </Button>
-                  {user?.type === "USER" ? (
+            tasks?.map((task) => {
+              const offerStatus =
+                task.offers?.length > 0 ? task.offers[0].status : null;
+
+              return (
+                <TableRow key={task.id}>
+                  <TableCell className="font-medium">{task.name}</TableCell>
+                  <TableCell className="capitalize">{task.category}</TableCell>
+                  <TableCell>
+                    {new Date(task.expectedStart).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>{task.hours}</TableCell>
+                  <TableCell>
+                    {task.currency} {task.hourlyRate.toFixed(2)}
+                  </TableCell>
+                  <TableCell className="flex gap-2">
                     <Button
-                      onClick={() => {
-                        setOfferTaskId(task.id);
-                        setOpenOfferListModal(true);
-                      }}
-                      variant="outline"
-                      disabled={!tasksHavingOffer?.[task.id]}
+                      onClick={() => handleViewTask(task.id)}
+                      variant="ghost"
+                      title="View Task"
                     >
-                      <strong>{tasksHavingOffer?.[task.id] || 0}</strong>
-                      {tasksHavingOffer?.[task.id] && tasksHavingOffer?.[task.id] > 1 ? "Offers" : "Offer"}
+                      <View />
                     </Button>
-                  ) : (
-                    <Button
-                      onClick={() => {
-                        setOpenOfferModal(true);
-                        setOfferTaskId(task.id);
-                      }}
-                      variant="outline"
-                    >
-                      Make Offer
-                    </Button>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))
+                    {user?.type === "USER" ? (
+                      <>
+                        <Button
+                          onClick={() => {
+                            setOpenOfferForm(true);
+                            setSelectedTask(task);
+                          }}
+                          variant="ghost"
+                          title="Edit Task"
+                        >
+                          <Settings />
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            setSelectedTask(task);
+                            setOpenOfferListModal(true);
+                          }}
+                          variant="outline"
+                          disabled={!tasksHavingOffer?.[task.id]}
+                        >
+                          <strong>{tasksHavingOffer?.[task.id] || 0}</strong>
+                          {tasksHavingOffer?.[task.id] &&
+                          tasksHavingOffer?.[task.id] > 1
+                            ? "Offers"
+                            : "Offer"}
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        onClick={() => {
+                          if (!offerStatus) {
+                            setOpenOfferModal(true);
+                            setSelectedTask(task);
+                          }
+                        }}
+                        variant="outline"
+                        title={
+                          offerStatus
+                            ? `Offer is in ${offerStatus} status.`
+                            : "Make an Offer"
+                        }
+                        className={twMerge(
+                          offerStatus ? "cursor-not-allowed" : "cursor-pointer",
+                          offerStatus === "ACCEPTED"
+                            ? "bg-green-50 text-green-800 hover:bg-green-100 hover:text-green-800"
+                            : "",
+                          offerStatus === "REJECTED"
+                            ? "bg-red-50 text-red-800 hover:bg-red-100 hover:text-red-800"
+                            : "",
+                          offerStatus === "PENDING"
+                            ? "bg-yellow-50 text-yellow-800 hover:bg-yellow-100 hover:text-yellow-800"
+                            : "",
+                        )}
+                      >
+                        {offerStatus ? (
+                          <>
+                            <CircleDashed /> {offerStatus}
+                          </>
+                        ) : (
+                          <>
+                            <TicketPercent /> Offer
+                          </>
+                        )}
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              );
+            })
           )}
         </TableBody>
       </Table>
-      <TaskFormModal task={selectedTask} open={open} setOpen={setOpen} />
+      <TaskFormModal task={selectedTask} open={openOfferForm} setOpen={setOpenOfferForm} />
       <TaskOfferConfirmationModal
-        taskId={offerTaskId}
+        task={selectedTask}
         open={openOfferModal}
-        setOpen={setOpenOfferModal}
+        onOfferModalClose={onOfferModalClose}
       />
       <TaskOfferListModal
-        taskId={offerTaskId}
+        taskId={selectedTask?.id || -1}
         open={openOfferListModal}
-        setOpen={setOpenOfferListModal}
+        setOpenOfferListModal={onOfferListModalClose}
       />
     </div>
   );

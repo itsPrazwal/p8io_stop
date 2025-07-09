@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import { Dispatch, MouseEventHandler, SetStateAction, useEffect } from "react";
+import { MouseEventHandler, useEffect } from "react";
 import {
   useOffersByTask,
   useUpdateOfferStatus,
@@ -20,17 +20,17 @@ import { twMerge } from "tailwind-merge";
 interface IProps {
   taskId: number;
   open: boolean;
-  setOpen: Dispatch<SetStateAction<boolean>>;
+  setOpenOfferListModal: (val: boolean) => void;
 }
 
-export function TaskOfferListModal({ taskId, open, setOpen }: IProps) {
-  const { isSuccess, mutate: updateOffer } = useUpdateOfferStatus();
+export function TaskOfferListModal({ taskId, open, setOpenOfferListModal }: IProps) {
+  const { isSuccess, mutate: updateOffer, reset } = useUpdateOfferStatus();
   const { data, isLoading, refetch, isRefetching, error } =
     useOffersByTask(taskId);
 
   useEffect(() => {
     if (open) {
-      refetch();
+      refetch()
     }
   }, [taskId, open, refetch]);
 
@@ -50,12 +50,13 @@ export function TaskOfferListModal({ taskId, open, setOpen }: IProps) {
 
   useEffect(() => {
     if (isSuccess) {
-      setOpen(false);
+      reset()
+      setOpenOfferListModal(false);
     }
-  }, [isSuccess, setOpen]);
+  }, [isSuccess, setOpenOfferListModal, reset]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpenOfferListModal}>
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>List of offers</DialogTitle>

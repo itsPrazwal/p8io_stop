@@ -8,47 +8,50 @@ import {
   DialogTitle
 } from "@/components/ui/dialog";
 
-import { Dispatch, MouseEventHandler, SetStateAction, useEffect } from "react";
+import { MouseEventHandler, useEffect } from "react";
 import { useCreateOffer } from "@/lib/hooks/offer.queries";
 import { Button } from "@/components/ui/button";
+import { ITask } from "@/types/task";
 
 interface IProps {
-  taskId: number;
+  task?: ITask;
   open: boolean;
-  setOpen: Dispatch<SetStateAction<boolean>>;
+  onOfferModalClose: (val: boolean) => void;
 }
 
-export function TaskOfferConfirmationModal({ taskId, open, setOpen }: IProps) {
+export function TaskOfferConfirmationModal({ task, open, onOfferModalClose }: IProps) {
 
   const {isSuccess, mutate: createOffer, reset } = useCreateOffer()
 
   const handleSubmit:MouseEventHandler<HTMLButtonElement> = (e) => {
     e.preventDefault()
-    createOffer({ taskId });
+    if(task){
+      createOffer({ taskId: task.id });
+    }
   };
 
   useEffect(() => {
     if (isSuccess) {
-      setOpen(false);
+      onOfferModalClose(false);
     }
-  }, [isSuccess, setOpen]);
+  }, [isSuccess, onOfferModalClose]);
 
   useEffect(() => {
     if (open) {
       reset();
     }
-  }, [open, reset, taskId]);
+  }, [open, reset, task]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={onOfferModalClose}>
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Confirm Offer Submission</DialogTitle>
-          <DialogDescription>Are you sure you want to submit offer for this task ({taskId}) ?</DialogDescription>
+          <DialogDescription>Are you sure you want to submit offer for &#34;{task?.name}&#34; ?</DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button onClick={handleSubmit}>Confirm</Button>
-          <Button variant="outline" onClick={() => setOpen(false)}>
+          <Button variant="outline" onClick={() => onOfferModalClose(false)}>
             Cancel
           </Button>
         </DialogFooter>

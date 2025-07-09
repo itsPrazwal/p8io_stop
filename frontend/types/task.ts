@@ -11,4 +11,11 @@ export interface ITask {
   isCompleted: boolean
   createdAt: string
   modifiedAt: string
+  offers: {
+    id?: number
+    status: string
+    modifiedAt: string
+    createdAt: string
+  }[]
 }
+

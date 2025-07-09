@@ -71,7 +71,6 @@ export function TaskFormModal({ task, open, setOpen }: IProps) {
         hourlyRate: task.hourlyRate,
         currency: task.currency,
       });
-      setOpen(true);
     }
   }, [task, reset, setOpen]);
 
