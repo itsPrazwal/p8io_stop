@@ -95,6 +95,13 @@ export const getTasksHavingOffer = async (userId: number): Promise<{ [key: numbe
   return data.reduce((acc, curr) => ({ ...acc, [curr.id]: curr._count.offers }), {})
 }
 
+export const startTaskById = async (id: number): Promise<Task | null> => {
+  return prisma.task.update({
+    where: { id },
+    data: { isCompleted: false, startDate: new Date() }
+  })
+}
+
 export const deleteTask = async (id: number): Promise<Task> => {
   return prisma.task.delete({ where: { id } })
 }
