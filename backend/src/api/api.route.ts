@@ -7,6 +7,7 @@ import offerRouter from './offer/offer.route.js'
 import skillRouter from './skill/skill.route.js'
 import taskRouter from './task/task.route.js'
 import userRouter from './user/user.route.js'
+import taskProgressRouter from './taskProgress/taskProgress.route.js'
 
 const app = express()
 
@@ -15,6 +16,7 @@ app.use('/offer', requireAuth, offerRouter)
 app.use('/skill', requireAuth, skillRouter)
 app.use('/task', requireAuth, taskRouter)
 app.use('/user', requireAuth, userRouter)
+app.use('/task-progress', requireAuth, taskProgressRouter)
 
 
 export default app
